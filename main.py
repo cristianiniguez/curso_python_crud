@@ -1,19 +1,29 @@
 import sys
+import csv
+import os
 
-clients = [
-    {
-        'name': 'Pablo',
-        'company': 'Google',
-        'email': 'pablo@gmail.com',
-        'position': 'Software Engineer',
-    },
-    {
-        'name': 'Ricardo',
-        'company': 'Facebook',
-        'email': 'ricardo@gmail.com',
-        'position': 'Data Engineer',
-    }
-]
+CLIENTS_TABLE = '.clients.csv'
+CLIENTS_SCHEMA = ['name', 'company', 'email', 'position']
+clients = []
+
+
+def _initialize_clients_from_storage():
+    with open(CLIENTS_TABLE, mode='r') as f:
+        reader = csv.DictReader(f, fieldnames=CLIENTS_SCHEMA)
+
+        for row in reader:
+            clients.append(row)
+
+
+def _save_clients_to_storage():
+    tmp_table_name = '{}.tmp'.format(CLIENTS_TABLE)
+
+    with open(tmp_table_name, mode='w') as f:
+        writer = csv.DictWriter(f, fieldnames=CLIENTS_SCHEMA)
+        writer.writerows(clients)
+
+        os.remove(CLIENTS_TABLE)
+        os.rename(tmp_table_name, CLIENTS_TABLE)
 
 
 def create_client(client):
@@ -125,6 +135,8 @@ def _print_not_found():
 
 
 if __name__ == '__main__':
+    _initialize_clients_from_storage()
+
     _print_welcome()
 
     command = input()
@@ -138,7 +150,6 @@ if __name__ == '__main__':
             'position': _get_client_field('position'),
         }
         create_client(client)
-        read_clients()
     elif command == 'R':
         read_clients()
     elif command == 'U':
@@ -150,11 +161,9 @@ if __name__ == '__main__':
             'position': _get_client_field('position'),
         }
         update_client(id, updated_client)
-        read_clients()
     elif command == 'D':
         id = _get_client_id()
         delete_client(id)
-        read_clients()
     elif command == 'S':
         client_name = _get_client_name()
         found = search_client(client_name)
@@ -164,3 +173,5 @@ if __name__ == '__main__':
             print('The client: {} is not in our client\'s list'.format(client_name))
     else:
         print('Invalid command')
+
+    _save_clients_to_storage()
