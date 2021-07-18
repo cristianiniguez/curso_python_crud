@@ -1,21 +1,41 @@
 import sys
 
-clients = ['pablo', 'ricardo']
+clients = [
+    {
+        'name': 'Pablo',
+        'company': 'Google',
+        'email': 'pablo@gmail.com',
+        'position': 'Software Engineer',
+    },
+    {
+        'name': 'Ricardo',
+        'company': 'Facebook',
+        'email': 'ricardo@gmail.com',
+        'position': 'Data Engineer',
+    }
+]
 
 
-def create_client(client_name):
+def create_client(client):
     global clients
 
-    if client_name not in clients:
-        clients.append(client_name)
+    if client not in clients:
+        clients.append(client)
     else:
         print('Client already exists in the client\'s list')
 
 
 def read_clients():
     global clients
+
     for id, client in enumerate(clients):
-        print('{}: {}'.format(id, client))
+        print('{uid} | {name} | {company} | {email} | {position}'.format(
+            uid=id,
+            name=client['name'],
+            company=client['company'],
+            email=client['email'],
+            position=client['position']
+        ))
 
 
 def update_client(client_name, updated_name):
@@ -70,6 +90,20 @@ def _get_client_name():
     return client_name
 
 
+def _get_client_field(field_name):
+    field = None
+    while not field:
+        field = input('What is the client {}? (exit to exit) '.format(field_name))
+        if field == 'exit':
+            field = None
+            break
+
+    if not field:
+        sys.exit()
+
+    return field
+
+
 def _print_not_found():
     print('Client is not in client\'s list')
 
@@ -81,8 +115,13 @@ if __name__ == '__main__':
     command = command.upper()
 
     if command == 'C':
-        client_name = _get_client_name()
-        create_client(client_name)
+        client = {
+            'name': _get_client_field('name'),
+            'company': _get_client_field('company'),
+            'email': _get_client_field('email'),
+            'position': _get_client_field('position'),
+        }
+        create_client(client)
         read_clients()
     elif command == 'R':
         read_clients()
