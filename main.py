@@ -38,26 +38,27 @@ def read_clients():
         ))
 
 
-def update_client(client_name, updated_name):
+def update_client(id, updated_client):
     global clients
-    if client_name in clients:
-        index = clients.index(client_name)
-        clients[index] = updated_name
+
+    if id < len(clients):
+        clients[id] = updated_client
     else:
         _print_not_found()
 
 
-def delete_client(client_name):
+def delete_client(id):
     global clients
-    if client_name in clients:
-        clients.remove(client_name)
+
+    if id < len(clients):
+        clients.remove(clients[id])
     else:
         _print_not_found()
 
 
 def search_client(client_name):
     for client in clients:
-        if client != client_name:
+        if client['name'] != client_name:
             continue
         else:
             return True
@@ -80,14 +81,29 @@ def _get_client_name():
     while not client_name:
         client_name = input("What is the client name? ('exit' to exit) ")
 
-        if client_name == 'exit':
-            client_name = None
+    return client_name
+
+
+def _get_client_id():
+    client_id = None
+
+    while client_id is None:
+        client_id = input("What is the client id? ('exit' to exit) ")
+
+        if client_id == 'exit':
+            client_id = None
             break
 
-    if not client_name:
+        try:
+            client_id = int(client_id)
+        except:
+            print("Invalid client id")
+            client_id = None
+
+    if client_id is None:
         sys.exit()
 
-    return client_name
+    return client_id
 
 
 def _get_client_field(field_name):
@@ -126,13 +142,18 @@ if __name__ == '__main__':
     elif command == 'R':
         read_clients()
     elif command == 'U':
-        client_name = _get_client_name()
-        updated_client_name = input('What is the updated client name? ')
-        update_client(client_name, updated_client_name)
+        id = _get_client_id()
+        updated_client = {
+            'name': _get_client_field('name'),
+            'company': _get_client_field('company'),
+            'email': _get_client_field('email'),
+            'position': _get_client_field('position'),
+        }
+        update_client(id, updated_client)
         read_clients()
     elif command == 'D':
-        client_name = _get_client_name()
-        delete_client(client_name)
+        id = _get_client_id()
+        delete_client(id)
         read_clients()
     elif command == 'S':
         client_name = _get_client_name()
