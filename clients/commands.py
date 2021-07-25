@@ -1,4 +1,5 @@
 import click
+from tabulate import tabulate
 
 from clients.services import ClientService
 from clients.models import Client
@@ -27,7 +28,16 @@ def create(ctx, name, company, email, position):
 @click.pass_context
 def read(ctx):
     "Reads all clients"
-    pass
+    client_service = ClientService(ctx.obj['clients_table'])
+    clients = client_service.read_clients()
+
+    headers = ['ID', 'Name', 'Company', 'Email', 'Position']
+    table = [
+        [client['uid'], client['name'], client['company'], client['email'], client['position']]
+        for client in clients
+    ]
+
+    click.echo(tabulate(table, headers=headers))
 
 
 @clients.command()
