@@ -22,6 +22,7 @@ def create(ctx, name, company, email, position):
     client = Client(name, company, email, position)
     client_service = ClientService(ctx.obj['clients_table'])
     client_service.create_client(client)
+    click.echo('Client created')
 
 
 @clients.command()
@@ -41,10 +42,29 @@ def read(ctx):
 
 
 @clients.command()
+@click.argument('client_uid', type=str)
 @click.pass_context
-def update(ctx, client_id):
+def update(ctx, client_uid):
     "Updates a client"
-    pass
+    client_service = ClientService(ctx.obj['clients_table'])
+    client_list = client_service.read_clients()
+    client = [client for client in client_list if client['uid'] == client_uid]
+
+    if len(client) > 0:
+        client = _update_client_flow(Client(**client[0]))
+        client_service.update_client(client)
+        click.echo('Client updated')
+    else:
+        click.echo('Client not found')
+
+
+def _update_client_flow(client):
+    click.echo("Leave empty if you don't want to modify the value")
+    client.name = click.prompt('New name', type=str, default=client.name)
+    client.company = click.prompt('New company', type=str, default=client.company)
+    client.email = click.prompt('New email', type=str, default=client.email)
+    client.position = click.prompt('New position', type=str, default=client.position)
+    return client
 
 
 @clients.command()
